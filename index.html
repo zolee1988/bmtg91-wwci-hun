@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8" />
+  <title>Magyar WWCI térkép</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+
+  <style>
+    html, body { margin:0; padding:0; height:100%; }
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    #header {
+      padding: 8px 12px;
+      font-size: 14px;
+      line-height: 1.4;
+      border-bottom: 1px solid #ddd;
+    }
+    #title {
+      font-weight: 600;
+    }
+    #subtitle {
+      color: #555;
+      font-size: 13px;
+    }
+    #map {
+      width:100%;
+      height: calc(100% - 52px);
+    }
+  </style>
+</head>
+
+<body>
+<div id="header">
+  <div id="title">Brandmeister TG 91 World Wide Check-In magyar állomások</div>
+  <div id="subtitle">az utolsó 12 hónap logja alapján, 2026.02.10.</div>
+</div>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+<script>
+const stations = [{"CALLSIGN":"HA0HA","CITY":"None","LAT":47.5436118,"LON":19.3979567,"CACHED":1},{"CALLSIGN":"HA0LA","CITY":"Debrecen","LAT":47.531399,"LON":21.6259782,"CACHED":1},{"CALLSIGN":"HA1EM","CITY":"VESZKENY","LAT":47.5998622,"LON":17.0857366,"CACHED":1},{"CALLSIGN":"HA1PB","CITY":"Szentkir ly","LAT":null,"LON":null,"CACHED":0},{"CALLSIGN":"HA1RY","CITY":"Cserh tsur ny","LAT":null,"LON":null,"CACHED":0},{"CALLSIGN":"HA1ZL","CITY":"Zalaegerszeg","LAT":46.8415803,"LON":16.8456316,"CACHED":1},{"CALLSIGN":"HA1ZW","CITY":"Zalaegerszeg","LAT":46.8415803,"LON":16.8456316,"CACHED":1},{"CALLSIGN":"HA4ULB","CITY":"Alap","LAT":46.8044751,"LON":18.6854298,"CACHED":1},{"CALLSIGN":"HA5OWL","CITY":"Budapest","LAT":47.4813896,"LON":19.1460941,"CACHED":1},{"CALLSIGN":"HA5RV","CITY":"Budapest","LAT":47.4813896,"LON":19.1460941,"CACHED":1},{"CALLSIGN":"HA5SIP","CITY":"Budapest","LAT":47.4813896,"LON":19.1460941,"CACHED":1},{"CALLSIGN":"HA5TI","CITY":"Budapest","LAT":47.4813896,"LON":19.1460941,"CACHED":1},{"CALLSIGN":"HA5TK","CITY":"Budapest","LAT":47.4813896,"LON":19.1460941,"CACHED":1},{"CALLSIGN":"HA6ICH","CITY":"Petervasara","LAT":48.0192068,"LON":20.0983738,"CACHED":1},{"CALLSIGN":"HA7MI","CITY":"Jaszbereny","LAT":47.5030505,"LON":19.9117887,"CACHED":1},{"CALLSIGN":"HA7SLY","CITY":"Szolnok","LAT":47.1753833,"LON":20.1946279,"CACHED":1},{"CALLSIGN":"HA7VDI","CITY":"Budapest","LAT":47.4813896,"LON":19.1460941,"CACHED":1},{"CALLSIGN":"HA7ZB","CITY":"Pomaz","LAT":47.6468212,"LON":19.0236304,"CACHED":1},{"CALLSIGN":"HA8WM","CITY":"Bekescsaba","LAT":46.6798003,"LON":21.0985425,"CACHED":1},{"CALLSIGN":"HA9AP","CITY":"Miskolc","LAT":48.1030643,"LON":20.7900429,"CACHED":1},{"CALLSIGN":"HG0DQR","CITY":"Debrecen","LAT":47.531399,"LON":21.6259782,"CACHED":1},{"CALLSIGN":"HG0NAZ","CITY":"DEBRECEN","LAT":47.531399,"LON":21.6259782,"CACHED":1},{"CALLSIGN":"HG4ZKZ","CITY":"Zamoly","LAT":47.3183087,"LON":18.4139732,"CACHED":1},{"CALLSIGN":"HG5BVA","CITY":"Orbottyan","LAT":47.6827581,"LON":19.263848,"CACHED":1},{"CALLSIGN":"HG5CWQ","CITY":"Budapest","LAT":47.4813896,"LON":19.1460941,"CACHED":1},{"CALLSIGN":"HG5OGO","CITY":"Budapest","LAT":47.4813896,"LON":19.1460941,"CACHED":1},{"CALLSIGN":"HG6IDH","CITY":"P terv s ra","LAT":null,"LON":null,"CACHED":0},{"CALLSIGN":"HG7JMZ","CITY":"Szada","LAT":47.6363332,"LON":19.3116981,"CACHED":1},{"CALLSIGN":"HG8LXW","CITY":"Solt","LAT":46.8022565,"LON":19.0046438,"CACHED":1},{"CALLSIGN":"HG9HOS","CITY":"Tiszaluc","LAT":48.0345861,"LON":21.0630541,"CACHED":1}];
+
+const map = L.map('map').setView([47.2, 19.3], 7);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 18,
+  attribution: '&copy; OpenStreetMap'
+}).addTo(map);
+
+const markers = L.markerClusterGroup({
+  showCoverageOnHover: false,
+  maxClusterRadius: 40
+});
+
+stations.forEach(s => {
+  if (!s.LAT || !s.LON) return;
+  const m = L.marker([s.LAT, s.LON]).bindPopup(
+    `<b>${s.CALLSIGN}</b><br>${s.CITY}`
+  );
+  markers.addLayer(m);
+});
+
+map.addLayer(markers);
+</script>
+
+</body>
+</html>
